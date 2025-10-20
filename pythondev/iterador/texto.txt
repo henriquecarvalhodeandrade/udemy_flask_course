@@ -1,6 +1,0 @@
-Olá Mundo
-linha teste
-python é facil
-ruby é interessante
-
-
