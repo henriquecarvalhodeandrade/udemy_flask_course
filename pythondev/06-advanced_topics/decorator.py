@@ -18,4 +18,3 @@ def split_string(function):
         string_splitted = func.split()
         return string_splitted
     return wrapper
- 
