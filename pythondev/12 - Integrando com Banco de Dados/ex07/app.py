@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for, redirect, flash
 import urllib.request, json
 from flask_sqlalchemy import SQLAlchemy
+import os
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)
 
 # Comando onde será encontrado o nosso banco de dados
 BASE_DIR = r"C:\Users\rique\Documents\GitHub\meus_repositorios\udemy_flask_course\pythondev\12 - Integrando com Banco de Dados\instance\cursos.sqlite3"
@@ -77,6 +79,54 @@ def filmes(propriedade):
 	jsondata = json.loads(dados)
 
 	return render_template("filmes.html", filmes=jsondata['results'])
+
+@app.route('/cursos', methods=["GET","POST"])
+def lista_cursos():
+    page = request.args.get('page', 1, type=int)
+    per_page = 4
+
+    todos_cursos = cursos.query.paginate(page=page, per_page=per_page)
+
+    return render_template('cursos.html', cursos=todos_cursos)
+
+
+@app.route('/cria_curso', methods=["GET","POST"])
+def cria_curso():
+	nome = request.form.get('nome')
+	descricao = request.form.get('descricao')
+	ch = request.form.get('ch')
+
+	if request.method == 'POST':
+		if not nome or not descricao or not ch:
+			flash("Preencha todos os campos do formulário!", "error")
+		else:
+			curso = cursos(nome, descricao, ch)
+			db.session.add(curso)
+			db.session.commit()
+			return redirect(url_for('lista_cursos'))
+
+	return render_template('novo_curso.html')
+
+@app.route('/<int:id>/editar_curso', methods=["GET","POST"])
+def editar_curso(id):
+	curso = cursos.query.filter_by(id=id).first()
+	if request.method == 'POST':
+		nome = request.form['nome']
+		descricao = request.form['descricao']
+		ch = request.form['ch']
+
+		cursos.query.filter_by(id=id).update({"nome":nome, "descricao":descricao, "ch":ch})
+		db.session.commit()
+		return redirect(url_for('lista_cursos'))
+
+	return render_template('editar_curso.html', curso=curso)
+
+@app.route('/<int:id>/remover_curso')
+def remover_curso(id):
+	curso = cursos.query.filter_by(id=id).first()
+	db.session.delete(curso)
+	db.session.commit()
+	return redirect(url_for('lista_cursos'))
 
 if __name__ == "__main__":
     with app.app_context():

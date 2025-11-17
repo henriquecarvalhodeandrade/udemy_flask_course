@@ -1,6 +1,10 @@
 from flask import Flask, render_template, request
 import urllib.request, json
 from flask_sqlalchemy import SQLAlchemy
+import os
+
+
+
 
 app = Flask(__name__)
 
@@ -77,6 +81,11 @@ def filmes(propriedade):
 	jsondata = json.loads(dados)
 
 	return render_template("filmes.html", filmes=jsondata['results'])
+
+@app.route('/cursos', methods=["GET","POST"])
+def lista_cursos():
+	return render_template('cursos.html', cursos=cursos.query.all())
+
 
 if __name__ == "__main__":
     with app.app_context():
