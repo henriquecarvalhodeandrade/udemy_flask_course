@@ -7,7 +7,9 @@ from ..services import curso_service
 
 class CursoList(Resource):
     def get(self):
-        return "Estudando API com Flask"
+        cursos = curso_service.listar_curso()
+        cs = curso_schema.CursoSchema(many=True)
+        return make_response(cs.jsonify(cursos), 200)
 
     def post(self):
         cs = curso_schema.CursoSchema()
