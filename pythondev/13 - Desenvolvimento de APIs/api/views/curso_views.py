@@ -61,7 +61,11 @@ class CursoDetail(Resource):
 
 
     def delete(self, id):
-        pass
+        curso_bd = curso_service.listar_curso_id(id)
+        if not curso_bd:
+            return make_response(jsonify("Curso não encontrado!"), 404)
+        curso_service.remove_curso(curso_bd)
+        return make_response("Curso excluído com sucesso!", 204 )
 
 
 api.add_resource(CursoList, "/cursos")
