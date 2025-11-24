@@ -5,7 +5,7 @@ from api import api
 from ..schemas import curso_schema
 from flask import request, make_response, jsonify
 from ..entidades import curso
-from ..services import curso_service
+from ..services import curso_service, formacao_service
 
 class CursoList(Resource):
     def get(self):
@@ -23,8 +23,16 @@ class CursoList(Resource):
             nome = request.json['nome']
             descricao = request.json['descricao']
             data_publicacao = request.json['data_publicacao']
+            formacao = request.json['formacao']
+            formacao_curso = formacao_service.listar_formacao_id(formacao)
 
-            novo_curso = curso.Curso(nome=nome, descricao=descricao, data_publicacao=data_publicacao)
+            if not formacao_curso:
+                return make_response(jsonify('Formação não encontrada', 404))
+
+            novo_curso = curso.Curso(nome=nome, descricao=descricao,
+                                     data_publicacao=data_publicacao,
+                                     formacao=formacao_curso)
+
             resultado = curso_service.cadastrar_curso(novo_curso)
             x = cs.jsonify(resultado)
 
@@ -52,8 +60,19 @@ class CursoDetail(Resource):
             nome = request.json['nome']
             descricao = request.json['descricao']
             data_publicacao = request.json['data_publicacao']
+            formacao = request.json['formacao']
+            formacao_curso = formacao_service.listar_formacao_id(formacao)
 
-            novo_curso = curso.Curso(nome=nome, descricao=descricao, data_publicacao=data_publicacao)
+            if not formacao_curso:
+                return make_response(jsonify('Formação não encontrada', 404))
+
+            novo_curso = curso.Curso(nome=nome, descricao=descricao,
+                                     data_publicacao=data_publicacao,
+                                     formacao=formacao_curso)
+
+            resultado = curso_service.cadastrar_curso(novo_curso)
+
+            novo_curso = curso.Curso(nome=nome, descricao=descricao, data_publicacao=data_publicacao, formacao=formacao_curso)
             curso_service.atualiza_curso(curso_anterior=curso_bd,curso_novo=novo_curso)
             curso_atualizado = curso_service.listar_curso_id(id)
 
