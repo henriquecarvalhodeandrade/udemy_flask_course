@@ -1,17 +1,16 @@
 from flask_restful import Resource
-from setuptools.config.pyprojecttoml import validate
-
 from api import api
 from ..schemas import formacao_schema
 from flask import request, make_response, jsonify
 from ..entidades import formacao
 from ..services import formacao_service
+from ..paginate import paginate
+from ..models.formacao_model import Formacao
 
 class FormacaoList(Resource):
     def get(self):
-        formacoes = formacao_service.listar_formacao()
         cs = formacao_schema.FormacaoSchema(many=True)
-        return make_response(cs.jsonify(formacoes), 200)
+        return paginate(Formacao, cs)
 
     def post(self):
         cs = formacao_schema.FormacaoSchema()
